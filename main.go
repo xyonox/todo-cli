@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -19,7 +20,9 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	list := map[int]string{}
 
-	list[0] = "Elisabeth oder so"
+	list[0] = "Einkaufen"
+	list[1] = "Auto Mieten"
+	list[2] = "Lego Set zu ende bauen"
 
 	for {
 		fmt.Print("Befehl eingeben (list, add, done, quit): ")
@@ -89,6 +92,8 @@ func main() {
 
 			doneTodo(&list, index)
 		case "quit":
+			out, _ := json.MarshalIndent(list, "", "  ")
+			fmt.Println(string(out))
 			return
 		}
 
