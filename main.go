@@ -11,6 +11,7 @@ import (
 	"syscall"
 )
 
+// listTodos prints the todos in the map
 func listTodos(todos map[int]string) {
 	fmt.Println("TODOs:")
 	for key, value := range todos {
@@ -18,6 +19,7 @@ func listTodos(todos map[int]string) {
 	}
 }
 
+// doneTodo removes a todo item from the list at the specified index and reorders the remaining items.
 func doneTodo(list *map[int]string, index int) {
 	newList := map[int]string{}
 	i := 0
@@ -32,7 +34,9 @@ func doneTodo(list *map[int]string, index int) {
 	*list = newList
 }
 
+// save saves the list to a file
 func save(list map[int]string) (err error) {
+	// Marshal to encode to JSON and Unmarshal to decode from JSON
 	out, err := json.MarshalIndent(list, "", "  ")
 	if err != nil {
 		fmt.Println("Could not marshal the todo list.")
@@ -200,7 +204,6 @@ func main() {
 			list[index] = secondInput
 
 		case "quit", "exit":
-			// Marshal to encode to JSON and Unmarshal to decode from JSON
 			err := save(list)
 			if err != nil {
 				return
