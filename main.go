@@ -46,10 +46,12 @@ func main() {
 		case "add":
 			fmt.Print("Neue Todo eingeben: 	")
 			if !scanner.Scan() {
-				_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
-				if err != nil {
-					fmt.Println("Eingabe konnte nicht gelesen werden.")
-					continue
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						continue
+					}
 				}
 			}
 			secondInput := strings.TrimSpace(scanner.Text())
@@ -61,10 +63,12 @@ func main() {
 		case "done":
 			fmt.Print("Index eingeben: ")
 			if !scanner.Scan() {
-				_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
-				if err != nil {
-					fmt.Println("Eingabe konnte nicht gelesen werden.")
-					continue
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						continue
+					}
 				}
 			}
 
