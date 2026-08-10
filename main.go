@@ -178,7 +178,6 @@ func main() {
 				// repeat the loop
 				continue
 			}
-			fmt.Println(string(out))
 
 			err = os.WriteFile("todos.json", out, 0644)
 			if err != nil {
