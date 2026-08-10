@@ -34,11 +34,19 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	list := map[int]string{}
 
-	// Example Todo`s.
-	// For continue development, I want to encode to JSON into a file and decode from a JSON file to load in
-	list[0] = "Einkaufen"
-	list[1] = "Auto Mieten"
-	list[2] = "Lego Set zu ende bauen"
+	file, err := os.ReadFile("todos.json")
+	if err != nil {
+		// When the file does not exist
+		list[0] = "Einkaufen"
+		list[1] = "Auto Mieten"
+		list[2] = "Lego Set zu ende bauen"
+	} else {
+		err = json.Unmarshal(file, &list)
+		if err != nil {
+			fmt.Println("unexpect error: ", err)
+			return
+		}
+	}
 
 	// Main loop
 	for {
@@ -126,6 +134,13 @@ func main() {
 				continue
 			}
 			fmt.Println(string(out))
+
+			err = os.WriteFile("todos.json", out, 0644)
+			if err != nil {
+				fmt.Println("Error while writing the file.", err)
+				return
+			}
+
 			// End the loop
 			return
 		// When the user types an unknown command, print him the commands
