@@ -16,33 +16,54 @@ func listTodos(todos map[int]string) {
 	}
 }
 
+func doneTodo(list *map[int]string, index int) {
+	newList := map[int]string{}
+	i := 0
+	for key, value := range *list {
+		if key == index {
+			continue
+		} else {
+			newList[i] = value
+			i++
+		}
+	}
+	*list = newList
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	list := map[int]string{}
 
+	// Example Todo`s.
+	// For continue development, I want to encode to JSON into a file and decode from a JSON file to load in
 	list[0] = "Einkaufen"
 	list[1] = "Auto Mieten"
 	list[2] = "Lego Set zu ende bauen"
 
+	// Main loop
 	for {
 		fmt.Print("Befehl eingeben (list, add, done, quit): ")
+		// Trying to read input from the user
 		if !scanner.Scan() {
+			// If there is an error, print it to the user
 			if err := scanner.Err(); err != nil {
 				_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
 				if err != nil {
 					fmt.Println("Eingabe konnte nicht gelesen werden.")
-					continue
 				}
 			}
+			// repeat the loop
 			continue
 		}
-
+		// Trim the input (remove whitespaces)
 		input := strings.TrimSpace(scanner.Text())
 		if input == "" {
 			fmt.Println("Kein Befehl eingegeben.")
+			// repeat the loop
 			continue
 		}
 
+		// check which command the user typed
 		switch input {
 		case "list":
 			listTodos(list)
@@ -53,6 +74,7 @@ func main() {
 					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
 					if err != nil {
 						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
 						continue
 					}
 				}
@@ -70,6 +92,7 @@ func main() {
 					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
 					if err != nil {
 						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
 						continue
 					}
 				}
@@ -80,11 +103,13 @@ func main() {
 			index, err := strconv.Atoi(secondInput)
 			if err != nil {
 				fmt.Println("Could not convert to int.")
+				// repeat the loop
 				continue
 			}
 
 			if index < 1 || index > len(list) {
 				fmt.Println("Index out of range.")
+				// repeat the loop
 				continue
 			}
 
@@ -92,25 +117,20 @@ func main() {
 
 			doneTodo(&list, index)
 		case "quit":
-			out, _ := json.MarshalIndent(list, "", "  ")
+			// Marshal to encode to JSON and Unmarshal to decode from JSON
+			out, err := json.MarshalIndent(list, "", "  ")
+			if err != nil {
+				fmt.Println("Could not marshal the todo list.")
+				fmt.Printf("The Error: %v\n", err)
+				// repeat the loop
+				continue
+			}
 			fmt.Println(string(out))
+			// End the loop
 			return
-		}
-
-		fmt.Println("cmd:", input)
-	}
-}
-
-func doneTodo(list *map[int]string, index int) {
-	newList := map[int]string{}
-	i := 0
-	for key, value := range *list {
-		if key == index {
-			continue
-		} else {
-			newList[i] = value
-			i++
+		// When the user types an unknown command, print him the commands
+		default:
+			fmt.Println("Unbekannter Befehl. Bekannte Befehle: list, add, done, quit")
 		}
 	}
-	*list = newList
 }
