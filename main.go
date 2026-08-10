@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 func listTodos(todos map[int]string) {
@@ -30,6 +32,22 @@ func doneTodo(list *map[int]string, index int) {
 	*list = newList
 }
 
+func save(list map[int]string) (err error) {
+	out, err := json.MarshalIndent(list, "", "  ")
+	if err != nil {
+		fmt.Println("Could not marshal the todo list.")
+		fmt.Printf("The Error: %v\n", err)
+		return err
+	}
+
+	err = os.WriteFile("todos.json", out, 0644)
+	if err != nil {
+		fmt.Println("Error while writing the file.", err)
+		return err
+	}
+	return nil
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	list := map[int]string{}
@@ -47,6 +65,18 @@ func main() {
 			return
 		}
 	}
+
+	signals := make(chan os.Signal, 1)
+
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-signals
+		if err := save(list); err != nil {
+			fmt.Println("Error while saving the file.", err)
+		}
+		os.Exit(0)
+	}()
 
 	// Main loop
 	for {
@@ -169,19 +199,10 @@ func main() {
 			secondInput = strings.TrimSpace(scanner.Text())
 			list[index] = secondInput
 
-		case "quit":
+		case "quit", "exit":
 			// Marshal to encode to JSON and Unmarshal to decode from JSON
-			out, err := json.MarshalIndent(list, "", "  ")
+			err := save(list)
 			if err != nil {
-				fmt.Println("Could not marshal the todo list.")
-				fmt.Printf("The Error: %v\n", err)
-				// repeat the loop
-				continue
-			}
-
-			err = os.WriteFile("todos.json", out, 0644)
-			if err != nil {
-				fmt.Println("Error while writing the file.", err)
 				return
 			}
 
