@@ -76,7 +76,7 @@ func main() {
 		case "list":
 			listTodos(list)
 		case "add":
-			fmt.Print("Neue Todo eingeben: 	")
+			fmt.Print("Neue Todo eingeben: ")
 			if !scanner.Scan() {
 				if err := scanner.Err(); err != nil {
 					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
@@ -110,13 +110,13 @@ func main() {
 
 			index, err := strconv.Atoi(secondInput)
 			if err != nil {
-				fmt.Println("Could not convert to int.")
+				fmt.Println("Konnte den Index nicht zur Zahl nicht konvertieren.")
 				// repeat the loop
 				continue
 			}
 
 			if index < 1 || index > len(list) {
-				fmt.Println("Index out of range.")
+				fmt.Println("Index ist nicht in der Liste.")
 				// repeat the loop
 				continue
 			}
@@ -124,6 +124,51 @@ func main() {
 			index--
 
 			doneTodo(&list, index)
+		case "edit":
+			fmt.Print("Index eingeben: ")
+			if !scanner.Scan() {
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
+						continue
+					}
+				}
+			}
+
+			secondInput := strings.TrimSpace(scanner.Text())
+
+			index, err := strconv.Atoi(secondInput)
+			if err != nil {
+				fmt.Println("Konnte den Index nicht zur Zahl nicht konvertieren.")
+				// repeat the loop
+				continue
+			}
+
+			if index < 1 || index > len(list) {
+				fmt.Println("Index ist nicht in der Liste.")
+				// repeat the loop
+				continue
+			}
+
+			index--
+
+			fmt.Printf("Bearbeitung eingeben (%v): ", list[index])
+			if !scanner.Scan() {
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
+						continue
+					}
+				}
+			}
+
+			secondInput = strings.TrimSpace(scanner.Text())
+			list[index] = secondInput
+
 		case "quit":
 			// Marshal to encode to JSON and Unmarshal to decode from JSON
 			out, err := json.MarshalIndent(list, "", "  ")
