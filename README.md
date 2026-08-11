@@ -134,4 +134,4 @@ the Go map to readable JSON, and `os.WriteFile` writes the result to
 - A map is used as an indexed list, which is useful for learning but not ideal
   for a production todo application.
 - The program does not support editing todos or marking them with a separate
-  completed status.
+  completed status. (current TODO)
