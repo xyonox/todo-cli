@@ -11,17 +11,28 @@ import (
 	"syscall"
 )
 
+type TodoStatus struct {
+	key         string
+	translation string
+}
+
+var (
+	TodoStatusDone    = TodoStatus{key: "TODO-STATUS-DONE", translation: "Done"}
+	TodoStatusWorking = TodoStatus{key: "TODO-STATUS-WORKING", translation: "Working on"}
+	TodoStatusNone    = TodoStatus{key: "TODO-STATUS-NONE", translation: "Not started"}
+)
+
 const (
-	TODO_STATUS_DONE    = "TODO-STATUS-DONE"
-	TODO_STATUS_WORKUNG = "TODO-STATUS-WORKING"
-	TODO_STATUS_NONE    = "TODO-STATUS-NONE"
-	COMMAND_LIST        = "list, add, working, done, remove, quit"
+	CommandList = "list, add, working, done, remove, quit"
 )
 
 // listTodos prints the todos in the map
 func listTodos(todos map[int]string) {
 	fmt.Println("TODOs:")
 	for key, value := range todos {
+
+		//splitted := strings.Split(value, "!DATA-INFORMATION!")
+
 		fmt.Printf("[%v] %v \n", key+1, value)
 	}
 }
@@ -54,7 +65,7 @@ func doneTodo(list *map[int]string, index int) {
 		todo = splitted[1]
 	}
 
-	(*list)[index] = TODO_STATUS_DONE + "!DATA-INFORMATION!" + todo
+	(*list)[index] = TodoStatusDone.key + "!DATA-INFORMATION!" + todo
 }
 
 func workingTodo(list *map[int]string, index int) {
@@ -70,11 +81,11 @@ func workingTodo(list *map[int]string, index int) {
 		todo = splitted[1]
 	}
 
-	(*list)[index] = TODO_STATUS_WORKUNG + "!DATA-INFORMATION!" + todo
+	(*list)[index] = TodoStatusWorking.key + "!DATA-INFORMATION!" + todo
 }
 
 func addTodo(list *map[int]string, todo string) {
-	(*list)[len(*list)] = TODO_STATUS_NONE + "!DATA-INFORMATION!" + todo
+	(*list)[len(*list)] = TodoStatusNone.key + "!DATA-INFORMATION!" + todo
 }
 
 func getTodoStatus(index int) string {
@@ -131,7 +142,7 @@ func main() {
 
 	// Main loop
 	for {
-		fmt.Printf("Befehl eingeben (%v): ", COMMAND_LIST)
+		fmt.Printf("Befehl eingeben (%v): ", CommandList)
 		// Trying to read input from the user
 		if !scanner.Scan() {
 			// If there is an error, print it to the user
@@ -322,7 +333,7 @@ func main() {
 			return
 		// When the user types an unknown command, print him the commands
 		default:
-			fmt.Printf("Unbekannter Befehl. Bekannte Befehle: %v\n", COMMAND_LIST)
+			fmt.Printf("Unbekannter Befehl. Bekannte Befehle: %v\n", CommandList)
 		}
 	}
 }
