@@ -15,6 +15,7 @@ const (
 	TODO_STATUS_DONE    = "TODO-STATUS-DONE"
 	TODO_STATUS_WORKUNG = "TODO-STATUS-WORKING"
 	TODO_STATUS_NONE    = "TODO-STATUS-NONE"
+	COMMAND_LIST        = "list, add, working, done, remove, quit"
 )
 
 // listTodos prints the todos in the map
@@ -126,7 +127,7 @@ func main() {
 
 	// Main loop
 	for {
-		fmt.Print("Befehl eingeben (list, add, done, quit): ")
+		fmt.Printf("Befehl eingeben (%v): ", COMMAND_LIST)
 		// Trying to read input from the user
 		if !scanner.Scan() {
 			// If there is an error, print it to the user
@@ -200,6 +201,69 @@ func main() {
 			index--
 
 			doneTodo(&list, index)
+		case "remove":
+			fmt.Print("Index eingeben: ")
+			if !scanner.Scan() {
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
+						continue
+					}
+				}
+			}
+
+			secondInput := strings.TrimSpace(scanner.Text())
+
+			index, err := strconv.Atoi(secondInput)
+			if err != nil {
+				fmt.Println("Konnte den Index nicht zur Zahl nicht konvertieren.")
+				// repeat the loop
+				continue
+			}
+
+			if index < 1 || index > len(list) {
+				fmt.Println("Index ist nicht in der Liste.")
+				// repeat the loop
+				continue
+			}
+
+			index--
+
+			removeTodoFromList(&list, index)
+		case "working":
+			fmt.Print("Index eingeben: ")
+			if !scanner.Scan() {
+				if err := scanner.Err(); err != nil {
+					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
+					if err != nil {
+						fmt.Println("Eingabe konnte nicht gelesen werden.")
+						// repeat the loop
+						continue
+					}
+				}
+			}
+
+			secondInput := strings.TrimSpace(scanner.Text())
+
+			index, err := strconv.Atoi(secondInput)
+			if err != nil {
+				fmt.Println("Konnte den Index nicht zur Zahl nicht konvertieren.")
+				// repeat the loop
+				continue
+			}
+
+			if index < 1 || index > len(list) {
+				fmt.Println("Index ist nicht in der Liste.")
+				// repeat the loop
+				continue
+			}
+
+			index--
+
+			workingTodo(&list, index)
+
 		case "edit":
 			fmt.Print("Index eingeben: ")
 			if !scanner.Scan() {
@@ -255,7 +319,7 @@ func main() {
 			return
 		// When the user types an unknown command, print him the commands
 		default:
-			fmt.Println("Unbekannter Befehl. Bekannte Befehle: list, add, done, quit")
+			fmt.Printf("Unbekannter Befehl. Bekannte Befehle: %v\n", COMMAND_LIST)
 		}
 	}
 }
