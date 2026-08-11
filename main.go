@@ -69,7 +69,7 @@ func listTodos(todos map[int]string) {
 	}
 	fmt.Println("----------------------------------------")
 	if category["unkown"] != "" {
-		fmt.Printf("Nicht zu einer Kategorien rückzuführen: \n%v\n", category["unkown"])
+		fmt.Printf("Nicht zu einer Kategorien rückzuführen: \n%v\n", category["unknown"])
 	}
 }
 
@@ -214,6 +214,7 @@ func main() {
 			secondInput := strings.TrimSpace(scanner.Text())
 			if secondInput == "" {
 				fmt.Println("Keine neue Todo eingeben")
+				continue
 			}
 			addTodo(&list, secondInput)
 		case "done":
