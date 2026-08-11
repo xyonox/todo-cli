@@ -11,6 +11,12 @@ import (
 	"syscall"
 )
 
+const (
+	TODO_STATUS_DONE    = "TODO-STATUS-DONE"
+	TODO_STATUS_WORKUNG = "TODO-STATUS-WORKING"
+	TODO_STATUS_NONE    = "TODO-STATUS-NONE"
+)
+
 // listTodos prints the todos in the map
 func listTodos(todos map[int]string) {
 	fmt.Println("TODOs:")
@@ -19,8 +25,8 @@ func listTodos(todos map[int]string) {
 	}
 }
 
-// doneTodo removes a todo item from the list at the specified index and reorders the remaining items.
-func doneTodo(list *map[int]string, index int) {
+// removeTodoFromList removes a todo item from the list at the specified index and reorders the remaining items.
+func removeTodoFromList(list *map[int]string, index int) {
 	newList := map[int]string{}
 	i := 0
 	for key, value := range *list {
@@ -32,6 +38,42 @@ func doneTodo(list *map[int]string, index int) {
 		}
 	}
 	*list = newList
+}
+
+func doneTodo(list *map[int]string, index int) {
+
+	splitted := strings.Split((*list)[index], "!DATA-INFORMATION!")
+
+	var todo string
+
+	switch len(splitted) {
+	case 1:
+		todo = splitted[0]
+	case 2:
+		todo = splitted[1]
+	}
+
+	(*list)[index] = TODO_STATUS_DONE + "!DATA-INFORMATION!" + todo
+}
+
+func workingTodo(list *map[int]string, index int) {
+
+	splitted := strings.Split((*list)[index], "!DATA-INFORMATION!")
+
+	var todo string
+
+	switch len(splitted) {
+	case 1:
+		todo = splitted[0]
+	case 2:
+		todo = splitted[1]
+	}
+
+	(*list)[index] = TODO_STATUS_WORKUNG + "!DATA-INFORMATION!" + todo
+}
+
+func getTodoStatus(index int) string {
+	return ""
 }
 
 // save saves the list to a file
@@ -126,7 +168,7 @@ func main() {
 				fmt.Println("Keine neue Todo eingeben")
 			}
 			fmt.Println(secondInput)
-			list[len(list)] = secondInput
+			list[len(list)] = TODO_STATUS_NONE + "!DATA-INFORMATION!" + secondInput
 		case "done":
 			fmt.Print("Index eingeben: ")
 			if !scanner.Scan() {
