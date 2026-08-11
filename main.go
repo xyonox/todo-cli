@@ -124,10 +124,6 @@ func addTodo(list *map[int]string, todo string) {
 	(*list)[len(*list)] = TodoStatusNone.key + "!DATA-INFORMATION!" + todo
 }
 
-func getTodoStatus(index int) string {
-	return ""
-}
-
 // save saves the list to a file
 func save(list map[int]string) (err error) {
 	// Marshal to encode to JSON and Unmarshal to decode from JSON
@@ -344,7 +340,9 @@ func main() {
 
 			index--
 
-			fmt.Printf("Bearbeitung eingeben (%v): ", list[index])
+			splitted := strings.SplitN(list[index], "!DATA-INFORMATION!", 2)
+
+			fmt.Printf("Bearbeitung eingeben (%v): ", splitted[1])
 			if !scanner.Scan() {
 				if err := scanner.Err(); err != nil {
 					_, err := fmt.Fprintln(os.Stderr, "Eingabe konnte nicht gelesen werden:", err)
@@ -357,7 +355,7 @@ func main() {
 			}
 
 			secondInput = strings.TrimSpace(scanner.Text())
-			list[index] = secondInput
+			list[index] = splitted[0] + "!DATA-INFORMATION!" + secondInput
 
 		case "quit", "exit":
 			err := save(list)

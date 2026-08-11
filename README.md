@@ -146,5 +146,3 @@ converts the Go map to readable JSON, and `os.WriteFile` writes the result to
   for a production todo application.
 - The map iteration order is not guaranteed, so the order in which items are
   displayed or reindexed can vary.
-- Editing a todo replaces the complete stored value, so editing an item removes
-  its status marker until a status command is applied again.
