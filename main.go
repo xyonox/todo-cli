@@ -29,11 +29,47 @@ const (
 // listTodos prints the todos in the map
 func listTodos(todos map[int]string) {
 	fmt.Println("TODOs:")
+	fmt.Println("----------------------------------------\n")
+	category := map[string]string{}
 	for key, value := range todos {
+		splitted := strings.SplitN(value, "!DATA-INFORMATION!", 2)
 
-		//splitted := strings.Split(value, "!DATA-INFORMATION!")
+		if len(splitted) != 2 {
+			category["unknown"] = fmt.Sprintf("%v[%v] %v\n", category["unknown"], key+1, value)
+			continue
+		}
 
-		fmt.Printf("[%v] %v \n", key+1, value)
+		status := splitted[0]
+		text := splitted[1]
+
+		switch status {
+		case TodoStatusNone.key, TodoStatusWorking.key, TodoStatusDone.key:
+			category[status] = fmt.Sprintf("%v[%v] %v\n", category[status], key+1, text)
+		default:
+			category["unknown"] = fmt.Sprintf("%v[%v] %v\n", category["unknown"], key+1, value)
+		}
+	}
+
+	printed := false
+
+	if category[TodoStatusNone.key] != "" {
+		fmt.Printf("%v:\n%v\n", TodoStatusNone.translation, category[TodoStatusNone.key])
+		printed = true
+	}
+	if category[TodoStatusWorking.key] != "" {
+		fmt.Printf("%v:\n%v\n", TodoStatusWorking.translation, category[TodoStatusWorking.key])
+		printed = true
+	}
+	if category[TodoStatusDone.key] != "" {
+		fmt.Printf("%v:\n%v\n", TodoStatusDone.translation, category[TodoStatusDone.key])
+		printed = true
+	}
+	if !printed {
+		fmt.Println("Keine Todos vorhanden.")
+	}
+	fmt.Println("----------------------------------------")
+	if category["unkown"] != "" {
+		fmt.Printf("Nicht zu einer Kategorien rückzuführen: \n%v\n", category["unkown"])
 	}
 }
 
