@@ -7,7 +7,8 @@ created as a learning project to understand two basic Go topics:
 - encoding and decoding JSON files
 
 The application stores todos locally in `todos.json` and provides a simple
-interactive command loop.
+interactive command loop. Todos can be marked as not started, in progress, or
+done.
 
 ## Requirements
 
@@ -28,10 +29,13 @@ current implementation are in German, while this documentation is in English.
 
 | Command | Description |
 | --- | --- |
-| `list` | Displays all current todos and their indexes. |
-| `add` | Asks for a new todo and adds it to the list. |
-| `done` | Asks for an index and removes the corresponding todo. |
-| `quit` | Prints the current list, saves it to `todos.json`, and exits. |
+| `list` | Displays all current todos grouped by status and their indexes. |
+| `add` | Asks for a new todo and adds it with the `Not started` status. |
+| `working` | Asks for an index and marks the todo as `Working on`. |
+| `done` | Asks for an index and marks the todo as `Done`. |
+| `remove` | Asks for an index and removes the corresponding todo. |
+| `edit` | Asks for an index and replaces the todo text. |
+| `quit` / `exit` | Saves the list to `todos.json` and exits. |
 
 Example session:
 
@@ -39,6 +43,8 @@ Example session:
 list
 add
 Read about Go maps
+working
+2
 done
 2
 quit
@@ -63,8 +69,8 @@ The JSON file represents the map like this:
 
 ```json
 {
-  "0": "Buy groceries",
-  "1": "Rent a car"
+  "0": "TODO-STATUS-NONE!DATA-INFORMATION!Buy groceries",
+  "1": "TODO-STATUS-DONE!DATA-INFORMATION!Rent a car"
 }
 ```
 
@@ -76,35 +82,41 @@ unmarshalling into `map[int]string`.
 The program uses `bufio.Scanner` to read input from the terminal. Each input is
 trimmed with `strings.TrimSpace` and processed by a `switch` statement.
 
-The loop continues until the user enters `quit`. Invalid commands and input
-errors are reported in the terminal.
+The loop continues until the user enters `quit` or `exit`. Invalid commands and
+input errors are reported in the terminal. Indexes shown to the user start at
+1, while the map uses zero-based keys internally.
 
 ### 3. Adding a todo
 
-When `add` is selected, the entered text is stored in the map using the current
-map length as the key:
+When `add` is selected, the entered text is prefixed with the `Not started`
+status marker and stored in the map using the current map length as the key:
 
 ```go
-list[len(list)] = todo
+list[len(list)] = TodoStatusNone.key + "!DATA-INFORMATION!" + todo
 ```
 
 This works for the normal add flow, but it is intentionally simple. After a
 todo is removed, map indexes can be rebuilt, so this is not a permanent unique
 ID system.
 
-### 4. Completing a todo
+### 4. Updating and removing todos
 
-When `done` is selected, the user enters the displayed index. The input is
-converted from a string to an integer with `strconv.Atoi`.
+The `working` and `done` commands update the status marker of the selected todo.
+The `edit` command replaces the selected map value with the entered text.
+`remove` deletes a todo by creating a new map without the selected item.
 
-The `doneTodo` function receives a pointer to the map. It creates a new map,
-copies every todo except the selected one, and assigns the new map back to the
-original variable. This also rebuilds the indexes from zero.
+For all commands that require an index, the input is converted from a string to
+an integer with `strconv.Atoi` and checked against the current list length.
+
+The `removeTodoFromList` function receives a pointer to the map. It creates a
+new map, copies every todo except the selected one, and assigns the new map back
+to the original variable. This also rebuilds the indexes from zero.
 
 ### 5. Saving the todos
 
-The list is only saved when `quit` is entered. `json.MarshalIndent` converts
-the Go map to readable JSON, and `os.WriteFile` writes the result to
+The list is saved when `quit` or `exit` is entered. It is also saved when the
+process receives an interrupt or termination signal. `json.MarshalIndent`
+converts the Go map to readable JSON, and `os.WriteFile` writes the result to
 `todos.json` with file permissions `0644`.
 
 ## Project structure
@@ -114,7 +126,7 @@ the Go map to readable JSON, and `os.WriteFile` writes the result to
 ├── main.go     # CLI logic, map operations, and JSON handling
 ├── todos.json  # Persisted todo data
 ├── go.mod      # Go module definition
-└── README      # Project documentation
+└── README.md   # Project documentation
 ```
 
 ## What this project demonstrates
@@ -130,8 +142,9 @@ the Go map to readable JSON, and `os.WriteFile` writes the result to
 
 ## Current limitations
 
-- Map iteration order is not guaranteed, so the display order may vary.
 - A map is used as an indexed list, which is useful for learning but not ideal
   for a production todo application.
-- The program does not support editing todos or marking them with a separate
-  completed status. (current TODO)
+- The map iteration order is not guaranteed, so the order in which items are
+  displayed or reindexed can vary.
+- Editing a todo replaces the complete stored value, so editing an item removes
+  its status marker until a status command is applied again.
