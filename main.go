@@ -73,6 +73,10 @@ func workingTodo(list *map[int]string, index int) {
 	(*list)[index] = TODO_STATUS_WORKUNG + "!DATA-INFORMATION!" + todo
 }
 
+func addTodo(list *map[int]string, todo string) {
+	(*list)[len(*list)] = TODO_STATUS_NONE + "!DATA-INFORMATION!" + todo
+}
+
 func getTodoStatus(index int) string {
 	return ""
 }
@@ -102,9 +106,9 @@ func main() {
 	file, err := os.ReadFile("todos.json")
 	if err != nil {
 		// When the file does not exist
-		list[0] = "Einkaufen"
-		list[1] = "Auto Mieten"
-		list[2] = "Lego Set zu ende bauen"
+		addTodo(&list, "Einkaufen")
+		addTodo(&list, "Auto Mieten")
+		addTodo(&list, "Lego Set zu ende bauen")
 	} else {
 		err = json.Unmarshal(file, &list)
 		if err != nil {
@@ -168,8 +172,7 @@ func main() {
 			if secondInput == "" {
 				fmt.Println("Keine neue Todo eingeben")
 			}
-			fmt.Println(secondInput)
-			list[len(list)] = TODO_STATUS_NONE + "!DATA-INFORMATION!" + secondInput
+			addTodo(&list, secondInput)
 		case "done":
 			fmt.Print("Index eingeben: ")
 			if !scanner.Scan() {
